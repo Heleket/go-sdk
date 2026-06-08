@@ -1,0 +1,39 @@
+services:
+  cli:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: dev
+    image: heleket-go-sdk:dev
+    volumes:
+      - ./:/app
+    working_dir: /app
+    env_file:
+      - .env
+    command: sh
+
+  webhook:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: dev
+    image: heleket-go-sdk:dev
+    volumes:
+      - ./:/app
+    working_dir: /app
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    command: go run ./examples/handle_webhook
+
+  qa:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: dev
+    image: heleket-go-sdk:dev
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: make qa
