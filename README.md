@@ -1,5 +1,7 @@
 # Heleket Go integration (reference)
 
+[![CI](https://github.com/heleket/go-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/heleket/go-sdk/actions/workflows/ci.yml)
+
 A production-grade reference Go SDK for the [Heleket](https://heleket.com) cryptocurrency payment API. Covers the full documented surface (payments, payouts, balance, services, exchange rates), ships with typed request/response structs, unit tests (including `-race`), runnable examples, a debug flag wired into `log/slog`, automatic retry on transport / 5xx errors, a webhook inspector CLI, and a Docker harness.
 
 Built to be `go get`'d directly into your project. Zero runtime dependencies — only the Go standard library.
