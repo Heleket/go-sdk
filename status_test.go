@@ -34,6 +34,27 @@ func TestPaymentStatusClassification(t *testing.T) {
 	}
 }
 
+func TestAmlLinkStatusClassification(t *testing.T) {
+	cases := []struct {
+		s          heleket.AmlLinkStatus
+		isFinal    bool
+		successful bool
+	}{
+		{heleket.AmlLinkStatusCompleted, true, true},
+		{heleket.AmlLinkStatusExpired, true, false},
+		{heleket.AmlLinkStatusInit, false, false},
+		{heleket.AmlLinkStatusPending, false, false},
+	}
+	for _, tc := range cases {
+		if got := tc.s.IsFinal(); got != tc.isFinal {
+			t.Errorf("%s.IsFinal() = %v; want %v", tc.s, got, tc.isFinal)
+		}
+		if got := tc.s.IsSuccessful(); got != tc.successful {
+			t.Errorf("%s.IsSuccessful() = %v; want %v", tc.s, got, tc.successful)
+		}
+	}
+}
+
 func TestPayoutStatusClassification(t *testing.T) {
 	cases := []struct {
 		s          heleket.PayoutStatus

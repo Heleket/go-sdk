@@ -254,3 +254,13 @@ type ExchangeRate struct {
 	Course string `json:"course"`
 	Source string `json:"source,omitempty"`
 }
+
+// AmlLink is one questionnaire link returned by GetAmlLinks for a blocked
+// (locked) payment. Hand Link to the end user to complete the AML/KYC/SoF
+// questionnaire; completing it can unblock the held payment. ExpiredAt is an
+// ISO-8601 timestamp, and Status is one of the AmlLinkStatus constants.
+type AmlLink struct {
+	Link      string        `json:"link"`
+	ExpiredAt string        `json:"expired_at,omitempty"`
+	Status    AmlLinkStatus `json:"status,omitempty"`
+}

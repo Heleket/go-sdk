@@ -57,6 +57,23 @@ info, err := client.GetInfo(ctx, heleket.InfoOptions{OrderID: "order-42"})
 if info.Status.IsFinal() { /* ... */ }
 ```
 
+## GetAmlLinks
+
+`GetAmlLinks(ctx, InfoOptions) ([]AmlLink, error)`  →  `POST /v1/payment/aml-links`
+
+Set exactly one of `UUID` or `OrderID` (the server prioritises `OrderID` when both are sent). Returns the questionnaire links the end user must complete to unblock a blocked (locked) payment. Each `AmlLink` has `Link` (the URL to hand to the user), `ExpiredAt`, and `Status` — see `heleket.AmlLinkStatus` and the status table in [10 — Reference](10-reference.md).
+
+```go
+links, err := client.GetAmlLinks(ctx, heleket.InfoOptions{UUID: invoiceUUID})
+// or
+links, err := client.GetAmlLinks(ctx, heleket.InfoOptions{OrderID: "order-42"})
+
+for _, link := range links {
+    fmt.Printf("%s — %s (expires %s)\n", link.Link, link.Status, link.ExpiredAt)
+    if link.Status.IsFinal() { /* questionnaire done or link expired */ }
+}
+```
+
 ## ListHistory
 
 `ListHistory(ctx, HistoryOptions) (*HistoryPage[Invoice], error)`  →  `POST /v1/payment/list`
@@ -193,7 +210,7 @@ for _, row := range balance.Merchant {
 
 ## GetExchangeRates
 
-`GetExchangeRates(ctx, currency string) ([]ExchangeRate, error)`  →  `POST /v1/exchange-rate/{currency}/list`
+`GetExchangeRates(ctx, currency string) ([]ExchangeRate, error)`  →  `GET /v1/exchange-rate/{currency}/list`
 
 ```go
 rates, _ := client.GetExchangeRates(ctx, "USD")

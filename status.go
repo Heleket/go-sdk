@@ -86,6 +86,37 @@ func (s PayoutStatus) IsSuccessful() bool {
 	return s == PayoutStatusPaid
 }
 
+// AmlLinkStatus is the status of an AML/KYC/SoF questionnaire link returned per
+// item by PaymentClient.GetAmlLinks for a blocked (locked) payment. "Final"
+// statuses are terminal — the link will not transition further; intermediate
+// statuses may still change while the user works through the questionnaire.
+type AmlLinkStatus string
+
+const (
+	// AmlLinkStatusInit: link created. Intermediate.
+	AmlLinkStatusInit AmlLinkStatus = "init"
+	// AmlLinkStatusPending: questionnaire in progress. Intermediate.
+	AmlLinkStatusPending AmlLinkStatus = "pending"
+	// AmlLinkStatusCompleted: questionnaire completed. Final + successful.
+	AmlLinkStatusCompleted AmlLinkStatus = "completed"
+	// AmlLinkStatusExpired: link expired before completion. Final.
+	AmlLinkStatusExpired AmlLinkStatus = "expired"
+)
+
+// IsFinal reports whether the AML link status is terminal.
+func (s AmlLinkStatus) IsFinal() bool {
+	switch s {
+	case AmlLinkStatusCompleted, AmlLinkStatusExpired:
+		return true
+	}
+	return false
+}
+
+// IsSuccessful reports whether the questionnaire was completed successfully.
+func (s AmlLinkStatus) IsSuccessful() bool {
+	return s == AmlLinkStatusCompleted
+}
+
 // CourseSource identifies the exchange-rate source used when converting fiat
 // invoice amounts. See https://doc.heleket.com/methods/payments/creating-invoice.
 type CourseSource string

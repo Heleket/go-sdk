@@ -65,7 +65,7 @@ Full reference lives in [`docs/`](docs/README.md):
 go.mod / *.go            Production code — zero deps beyond the standard library
 webhook/                 Subpackage for incoming webhook verification
 internal/testutil/       FakeTransport for offline tests
-examples/                Ten runnable programs covering every endpoint
+examples/                Eleven runnable programs covering every endpoint
 cmd/heleket-webhook-inspect/  CLI for verifying and dumping any webhook payload
 docker/                  golang:1.22-alpine multi-stage build
 docs/                    Full module documentation
@@ -104,6 +104,29 @@ make help                 # Full target list
 - **Two separate API keys** — payments and payouts. Mixing them breaks webhook verification.
 - **The SDK never logs API keys.** Debug-mode output via `log/slog` includes URL, method, and body — but the `sign` header and API key are explicitly excluded.
 
+## Releasing
+
+Releases are cut from git tags. The version reported in the `User-Agent` header
+is the `Version` constant in [`config.go`](config.go), so it moves in lockstep
+with the tag.
+
+1. Land changes on `main`; make sure `make qa` is green.
+2. Bump `Version` in `config.go` and update [`CHANGELOG.md`](CHANGELOG.md).
+3. Tag and push — **Go tags must be prefixed with `v`**:
+   `git tag v0.1.0 && git push origin v0.1.0`.
+
+The Go module proxy and [pkg.go.dev](https://pkg.go.dev) pick up the tag
+automatically; consumers then get it with
+`go get github.com/heleket/go-sdk@v0.1.0`.
+
+**Pre-1.0.** While the SDK is in `0.x` the public API may still change between
+minor versions. It is frozen at `1.0.0`.
+
+**Major versions.** Go encodes the major version in the import path: from `v2`
+onward the module path gains a `/vN` suffix (e.g. `github.com/heleket/go-sdk/v2`)
+per the [Go module rules](https://go.dev/wiki/Modules#releasing-modules-v2-or-higher).
+Never delete or move a published tag.
+
 ## License
 
-MIT.
+MIT — see [`LICENSE`](LICENSE).

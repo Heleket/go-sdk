@@ -35,6 +35,24 @@ func (c *baseClient) post(ctx context.Context, path string, params any, out any)
 	if err != nil {
 		return err
 	}
+	return c.do(ctx, "POST", path, body, out)
+}
+
+// get sends a signed GET request and decodes the API "result" field into out.
+//
+// For read-only endpoints that carry all their input in the path (e.g. exchange
+// rates). There is no request body, so the signed bytes are the empty slice —
+// exactly like a POST with no params: sign = md5(apiKey).
+//
+// Same return and retry semantics as post.
+func (c *baseClient) get(ctx context.Context, path string, out any) error {
+	return c.do(ctx, "GET", path, nil, out)
+}
+
+// do signs the exact body bytes, attaches the auth headers, dispatches via the
+// transport with retry/backoff, and translates the response. Shared by post and
+// get so the signing and error handling live in exactly one place.
+func (c *baseClient) do(ctx context.Context, method, path string, body []byte, out any) error {
 	sign := Sign(body, c.config.APIKey)
 
 	url := c.config.BaseURL + path
@@ -58,8 +76,8 @@ func (c *baseClient) post(ctx context.Context, path string, params any, out any)
 			}
 		}
 
-		debugRequest(c.config.Logger, c.config.Debug, "POST", url, body)
-		resp, err := c.config.Transport.RoundTrip(ctx, "POST", url, headers, body)
+		debugRequest(c.config.Logger, c.config.Debug, method, url, body)
+		resp, err := c.config.Transport.RoundTrip(ctx, method, url, headers, body)
 		if err != nil {
 			lastErr = &HTTPError{Cause: err}
 			if !isRetryableTransportError(err) || attempt == maxAttempts-1 {

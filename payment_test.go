@@ -292,3 +292,109 @@ func TestGetInfo_ReturnsErrIdentifierRequired(t *testing.T) {
 		t.Errorf("errors.Is(err, ErrIdentifierRequired) = false; want true (got %v)", err)
 	}
 }
+
+func TestGetExchangeRates_IssuesSignedGetWithEmptyBody(t *testing.T) {
+	fake := testutil.NewFakeTransport().EnqueueJSON(map[string]any{
+		"state": 0,
+		"result": []map[string]any{
+			{"from": "USD", "to": "BTC", "course": "0.000016", "source": "Binance"},
+		},
+	}, 200)
+	client := newPaymentWithFake(t, fake)
+
+	rates, err := client.GetExchangeRates(context.Background(), "USD")
+	if err != nil {
+		t.Fatalf("GetExchangeRates: %v", err)
+	}
+	if len(rates) != 1 || rates[0].From != "USD" || rates[0].To != "BTC" {
+		t.Errorf("unexpected rates: %+v", rates)
+	}
+
+	req := fake.LastRequest()
+	if req.Method != "GET" {
+		t.Errorf("method = %q; want GET", req.Method)
+	}
+	if req.URL != "https://api.heleket.com/v1/exchange-rate/USD/list" {
+		t.Errorf("url = %q", req.URL)
+	}
+	if len(req.Body) != 0 {
+		t.Errorf("a GET carries its input in the path; want empty body, got %q", req.Body)
+	}
+	if got := req.Headers.Get("merchant"); got != testMerchantID {
+		t.Errorf("merchant header = %q; want %q", got, testMerchantID)
+	}
+	// md5(base64("") + key) == md5(key)
+	want := md5.Sum([]byte(testAPIKey))
+	if got := req.Headers.Get("sign"); got != hex.EncodeToString(want[:]) {
+		t.Errorf("sign for empty GET body = %q; want %q", got, hex.EncodeToString(want[:]))
+	}
+}
+
+func TestGetAmlLinks_SendsSignedPostByUUID(t *testing.T) {
+	links := []map[string]any{
+		{"link": "https://some.link/1", "expired_at": "2025-10-23T18:23:40.000000Z", "status": "completed"},
+		{"link": "https://some.link/2", "expired_at": "2026-05-13T11:32:38.000000Z", "status": "init"},
+	}
+	fake := testutil.NewFakeTransport().EnqueueJSON(map[string]any{
+		"state":  0,
+		"result": links,
+	}, 200)
+	client := newPaymentWithFake(t, fake)
+
+	out, err := client.GetAmlLinks(context.Background(), heleket.InfoOptions{UUID: "uuid-1"})
+	if err != nil {
+		t.Fatalf("GetAmlLinks: %v", err)
+	}
+	if len(out) != 2 || out[0].Link != "https://some.link/1" || out[0].Status != heleket.AmlLinkStatusCompleted {
+		t.Errorf("unexpected links: %+v", out)
+	}
+
+	req := fake.LastRequest()
+	if req.Method != "POST" {
+		t.Errorf("method = %q; want POST", req.Method)
+	}
+	if req.URL != "https://api.heleket.com/v1/payment/aml-links" {
+		t.Errorf("url = %q", req.URL)
+	}
+	if got := req.Headers.Get("merchant"); got != testMerchantID {
+		t.Errorf("merchant header = %q; want %q", got, testMerchantID)
+	}
+
+	expectedBody, _ := json.Marshal(heleket.InfoOptions{UUID: "uuid-1"})
+	if string(req.Body) != string(expectedBody) {
+		t.Errorf("body = %q; want %q", req.Body, expectedBody)
+	}
+	expectedSign := md5.Sum([]byte(base64.StdEncoding.EncodeToString(expectedBody) + testAPIKey))
+	if got := req.Headers.Get("sign"); got != hex.EncodeToString(expectedSign[:]) {
+		t.Errorf("sign = %q; want %q", got, hex.EncodeToString(expectedSign[:]))
+	}
+}
+
+func TestGetAmlLinks_LooksUpByOrderID(t *testing.T) {
+	fake := testutil.NewFakeTransport().EnqueueJSON(map[string]any{
+		"state":  0,
+		"result": []any{},
+	}, 200)
+	client := newPaymentWithFake(t, fake)
+
+	if _, err := client.GetAmlLinks(context.Background(), heleket.InfoOptions{OrderID: "order-1"}); err != nil {
+		t.Fatalf("GetAmlLinks: %v", err)
+	}
+
+	req := fake.LastRequest()
+	if req.URL != "https://api.heleket.com/v1/payment/aml-links" {
+		t.Errorf("url = %q", req.URL)
+	}
+	want, _ := json.Marshal(heleket.InfoOptions{OrderID: "order-1"})
+	if string(req.Body) != string(want) {
+		t.Errorf("body = %q; want %q", req.Body, want)
+	}
+}
+
+func TestGetAmlLinks_RequiresUUIDOrOrderID(t *testing.T) {
+	client := newPaymentWithFake(t, testutil.NewFakeTransport())
+	_, err := client.GetAmlLinks(context.Background(), heleket.InfoOptions{})
+	if !errors.Is(err, heleket.ErrIdentifierRequired) {
+		t.Errorf("errors.Is(err, ErrIdentifierRequired) = false; want true (got %v)", err)
+	}
+}

@@ -52,6 +52,24 @@ func (c *PaymentClient) GetInfo(ctx context.Context, opts InfoOptions) (*Invoice
 	return &out, nil
 }
 
+// GetAmlLinks returns the AML/KYC/SoF questionnaire links for a blocked
+// (locked) payment. Set exactly one of UUID or OrderID; the server prioritises
+// OrderID when both are sent.
+//
+// Each returned AmlLink carries the questionnaire URL to hand to the end user,
+// its expiry, and a status (see AmlLinkStatus). Completing the questionnaires
+// unblocks a held payment.
+func (c *PaymentClient) GetAmlLinks(ctx context.Context, opts InfoOptions) ([]AmlLink, error) {
+	if err := opts.validate(); err != nil {
+		return nil, err
+	}
+	var out []AmlLink
+	if err := c.post(ctx, "/v1/payment/aml-links", opts, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ListHistory returns paginated payment history.
 func (c *PaymentClient) ListHistory(ctx context.Context, opts HistoryOptions) (*HistoryPage[Invoice], error) {
 	path := "/v1/payment/list"
@@ -161,10 +179,12 @@ func (c *PaymentClient) GetBalance(ctx context.Context) (*Balance, error) {
 }
 
 // GetExchangeRates returns rates for the given fiat currency.
+//
+// Read-only endpoint: issued as a GET with the currency in the path.
 func (c *PaymentClient) GetExchangeRates(ctx context.Context, currency string) ([]ExchangeRate, error) {
 	var out []ExchangeRate
 	path := "/v1/exchange-rate/" + url.PathEscape(currency) + "/list"
-	if err := c.post(ctx, path, nil, &out); err != nil {
+	if err := c.get(ctx, path, &out); err != nil {
 		return nil, err
 	}
 	return out, nil

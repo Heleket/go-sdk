@@ -1,4 +1,4 @@
-.PHONY: help install update build test race vet staticcheck fmt fmt-check qa example-invoice example-info example-history example-static-wallet example-webhook example-balance example-payout example-payout-info example-services example-rates webhook-inspect docker-build docker-shell docker-webhook docker-qa clean
+.PHONY: help install update build test race vet staticcheck fmt fmt-check qa example-invoice example-info example-aml-links example-history example-static-wallet example-webhook example-balance example-payout example-payout-info example-services example-rates webhook-inspect docker-build docker-shell docker-webhook docker-qa clean
 
 GO          ?= go
 STATICCHECK ?= staticcheck
@@ -32,7 +32,7 @@ fmt: ## Apply gofmt to all files
 	$(GO) fmt ./...
 
 fmt-check: ## Fail if any file would be reformatted
-	@diff -u <(echo -n) <(gofmt -l .) || (echo "gofmt found issues; run 'make fmt'" && exit 1)
+	@out="$$(gofmt -l .)"; if [ -n "$$out" ]; then echo "gofmt found issues; run 'make fmt':"; echo "$$out"; exit 1; fi
 
 qa: vet staticcheck race fmt-check ## Run all quality gates (vet + staticcheck + race + fmt)
 
@@ -41,6 +41,9 @@ example-invoice: ## Create a test invoice via the API
 
 example-info: ## Look up payment info (pass UUID env var)
 	$(GO) run ./examples/get_payment_info $(UUID)
+
+example-aml-links: ## Fetch AML questionnaire links for a blocked payment (pass UUID env var)
+	$(GO) run ./examples/aml_links $(UUID)
 
 example-history: ## List recent payments
 	$(GO) run ./examples/list_payment_history
