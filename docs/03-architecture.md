@@ -88,7 +88,10 @@ md5(...) hex
 sign  ──►  HTTP header "sign: <hex>"
 ```
 
-The same `Sign` function is used to **produce** outgoing request signatures and to **verify** incoming webhook signatures (in the `webhook` subpackage).
+The same `Sign` function is used to **produce** outgoing request signatures and to **verify** incoming webhook signatures (in the `webhook` subpackage). The math is identical; only the key changes (payment key vs payout key).
+
+> One endpoint crosses the divide: `/v1/payment/refund` is a payment-domain path
+> signed with the **payout** key, so it lives on `PayoutClient.Refund`.
 
 ## Concurrency
 

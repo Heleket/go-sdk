@@ -67,7 +67,7 @@ Full reference lives in [`docs/`](docs/README.md):
 go.mod / *.go            Production code — zero deps beyond the standard library
 webhook/                 Subpackage for incoming webhook verification
 internal/testutil/       FakeTransport for offline tests
-examples/                Eleven runnable programs covering every endpoint
+examples/                Twelve runnable programs covering every endpoint
 cmd/heleket-webhook-inspect/  CLI for verifying and dumping any webhook payload
 docker/                  golang:1.22-alpine multi-stage build
 docs/                    Full module documentation
@@ -103,7 +103,7 @@ make help                 # Full target list
 - **Always verify webhook signatures.** See [docs/06-webhooks.md](docs/06-webhooks.md). Never trust the payload otherwise.
 - **De-duplicate replays.** Use a `(uuid, status)` key in your DB before doing side-effect work — pattern documented in [docs/06-webhooks.md](docs/06-webhooks.md#idempotency-and-replay-protection).
 - **Whitelist Heleket's webhook source IP `31.133.220.8`** at your reverse proxy or firewall.
-- **Two separate API keys** — payments and payouts. Mixing them breaks webhook verification.
+- **Two separate API keys** — payments and payouts. Mixing them breaks webhook verification. (One exception: `/v1/payment/refund` uses the **payout** key — call `PayoutClient.Refund`.)
 - **The SDK never logs API keys.** Debug-mode output via `log/slog` includes URL, method, and body — but the `sign` header and API key are explicitly excluded.
 
 ## Releasing

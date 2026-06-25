@@ -65,7 +65,6 @@ Returned per item by `GetAmlLinks` for a blocked (locked) payment.
 | `GetInfo` (payment) | `POST /v1/payment/info` | PaymentClient |
 | `GetAmlLinks` | `POST /v1/payment/aml-links` | PaymentClient |
 | `ListHistory` (payment) | `POST /v1/payment/list` | PaymentClient |
-| `Refund` | `POST /v1/payment/refund` | PaymentClient |
 | `ResendWebhook` | `POST /v1/payment/resend` | PaymentClient |
 | `ListServices` (payment) | `POST /v1/payment/services` | PaymentClient |
 | `CreateStaticWallet` | `POST /v1/wallet` | PaymentClient |
@@ -76,6 +75,7 @@ Returned per item by `GetAmlLinks` for a blocked (locked) payment.
 | `GetBalance` | `POST /v1/balance` | PaymentClient |
 | `GetExchangeRates` | `GET /v1/exchange-rate/{currency}/list` | PaymentClient |
 | `CreatePayout` | `POST /v1/payout` | PayoutClient |
+| `Refund` | `POST /v1/payment/refund` (signed with payout key) | PayoutClient |
 | `GetInfo` (payout) | `POST /v1/payout/info` | PayoutClient |
 | `ListHistory` (payout) | `POST /v1/payout/list` | PayoutClient |
 | `CalculateWithdrawal` | `POST /v1/payout/calculate` | PayoutClient |

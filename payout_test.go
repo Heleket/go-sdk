@@ -99,3 +99,42 @@ func TestTransferToPersonalAndBusiness(t *testing.T) {
 		t.Errorf("second url = %q", reqs[1].URL)
 	}
 }
+
+func TestPayoutRefund_HitsPaymentRefundSignedWithPayoutKey(t *testing.T) {
+	fake := testutil.NewFakeTransport().EnqueueJSON(map[string]any{
+		"state":  0,
+		"result": map[string]any{"uuid": "inv-1", "status": "refund_process"},
+	}, 200)
+	client := newPayoutWithFake(t, fake)
+
+	if _, err := client.Refund(context.Background(), heleket.RefundRequest{
+		UUID:       "inv-1",
+		Address:    "TBaCkAdDrEsS",
+		IsSubtract: true,
+	}); err != nil {
+		t.Fatalf("Refund: %v", err)
+	}
+
+	req := fake.LastRequest()
+	if req.Method != "POST" {
+		t.Errorf("method = %q, want POST", req.Method)
+	}
+	// The endpoint is /v1/payment/refund even though it lives on PayoutClient.
+	if want := "https://api.heleket.com/v1/payment/refund"; req.URL != want {
+		t.Errorf("url = %q, want %q", req.URL, want)
+	}
+
+	var body map[string]any
+	if err := json.Unmarshal(req.Body, &body); err != nil {
+		t.Fatalf("decode body: %v", err)
+	}
+	if body["uuid"] != "inv-1" || body["address"] != "TBaCkAdDrEsS" || body["is_subtract"] != true {
+		t.Errorf("body = %#v", body)
+	}
+
+	// The whole point of the move: the refund is signed with the PAYOUT key the
+	// client was built with, not the payment key.
+	if want := heleket.Sign(req.Body, "payout-key-xyz"); req.Headers.Get("sign") != want {
+		t.Errorf("sign = %q, want %q (signed with payout key)", req.Headers.Get("sign"), want)
+	}
+}

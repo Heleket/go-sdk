@@ -42,6 +42,28 @@ fmt.Println(payout.Status)  // typically PayoutStatusProcess initially
 fmt.Println(payout.Balance) // remaining balance after deduction
 ```
 
+## Refund
+
+`Refund(ctx, RefundRequest) (*RefundResult, error)`  →  `POST /v1/payment/refund`
+
+Refund a paid invoice in full or in part. The path sits under `/payment`, but the
+request is **signed with the payout API key**, so the method lives here on
+`PayoutClient` rather than `PaymentClient`.
+
+Required: `Address`, `IsSubtract`; one of `UUID` / `OrderID`.
+
+```go
+refund, _ := client.Refund(ctx, heleket.RefundRequest{
+    UUID:       invoiceUUID,
+    Address:    "TBaCkAdDrEsS",
+    IsSubtract: true,
+})
+fmt.Println(refund.Amount, refund.Commission)
+```
+
+> Calling `PaymentClient.Refund` returns `ErrRefundMoved` and sends no request —
+> a payment client cannot sign with the payout key. See [UPGRADING](../UPGRADING.md).
+
 ## GetInfo
 
 `GetInfo(ctx, InfoOptions) (*Payout, error)`  →  `POST /v1/payout/info`

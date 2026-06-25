@@ -122,16 +122,19 @@ func (c *PaymentClient) RefundBlockedWallet(ctx context.Context, req RefundBlock
 	return &out, nil
 }
 
-// Refund refunds an invoice in full or in part.
-func (c *PaymentClient) Refund(ctx context.Context, req RefundRequest) (*RefundResult, error) {
-	if err := req.validate(); err != nil {
-		return nil, err
-	}
-	var out RefundResult
-	if err := c.post(ctx, "/v1/payment/refund", req, &out); err != nil {
-		return nil, err
-	}
-	return &out, nil
+// Refund is no longer available on PaymentClient.
+//
+// The /v1/payment/refund endpoint is now signed with the PAYOUT API key, which a
+// PaymentClient does not hold, so it can no longer produce a valid signature for
+// a refund. This stub returns [ErrRefundMoved] without issuing a request, rather
+// than silently signing with the wrong key. Use [PayoutClient.Refund] instead:
+//
+//	payout, _ := heleket.NewPayoutClient(merchantID, payoutKey)
+//	payout.Refund(ctx, req)
+//
+// Deprecated: refunds moved to [PayoutClient.Refund] in v0.2.0. See UPGRADING.md.
+func (c *PaymentClient) Refund(context.Context, RefundRequest) (*RefundResult, error) {
+	return nil, ErrRefundMoved
 }
 
 // ResendWebhook asks Heleket to redeliver the last webhook for the invoice.

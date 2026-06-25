@@ -32,6 +32,27 @@ func (c *PayoutClient) CreatePayout(ctx context.Context, req CreatePayoutRequest
 	return &out, nil
 }
 
+// Refund refunds a paid invoice in full or in part.
+//
+// It targets POST /v1/payment/refund, but that endpoint is signed with the
+// PAYOUT API key — which a PaymentClient does not hold — so the method lives on
+// PayoutClient. Construct the client with your payout key:
+//
+//	payout, _ := heleket.NewPayoutClient(merchantID, payoutKey)
+//	payout.Refund(ctx, heleket.RefundRequest{UUID: invoiceUUID, Address: addr, IsSubtract: true})
+//
+// Required: Address, IsSubtract; one of UUID / OrderID.
+func (c *PayoutClient) Refund(ctx context.Context, req RefundRequest) (*RefundResult, error) {
+	if err := req.validate(); err != nil {
+		return nil, err
+	}
+	var out RefundResult
+	if err := c.post(ctx, "/v1/payment/refund", req, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 // GetInfo looks up a payout by UUID or OrderID.
 func (c *PayoutClient) GetInfo(ctx context.Context, opts InfoOptions) (*Payout, error) {
 	if err := opts.validate(); err != nil {

@@ -1,4 +1,4 @@
-.PHONY: help install update build test race vet staticcheck fmt fmt-check qa example-invoice example-info example-aml-links example-history example-static-wallet example-webhook example-balance example-payout example-payout-info example-services example-rates webhook-inspect docker-build docker-shell docker-webhook docker-qa clean
+.PHONY: help install update build test race vet staticcheck fmt fmt-check qa example-invoice example-info example-aml-links example-history example-static-wallet example-webhook example-balance example-payout example-payout-info example-services example-rates example-refund webhook-inspect docker-build docker-shell docker-webhook docker-qa clean
 
 GO          ?= go
 STATICCHECK ?= staticcheck
@@ -68,6 +68,9 @@ example-services: ## List payment or payout services (KIND=payment|payout)
 
 example-rates: ## List exchange rates (CURRENCY=USD by default)
 	$(GO) run ./examples/exchange_rates $(CURRENCY)
+
+example-refund: ## Refund a paid invoice — payout key (pass UUID and ADDRESS env vars)
+	$(GO) run ./examples/refund $(UUID) $(ADDRESS)
 
 webhook-inspect: build ## Pipe a webhook payload into the inspector CLI (pass KEY env var)
 	./bin/heleket-webhook-inspect --key=$(KEY)

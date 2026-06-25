@@ -13,7 +13,7 @@ import (
 )
 
 // Version is the SDK version, surfaced in the User-Agent header.
-const Version = "0.1.1"
+const Version = "0.2.0"
 
 // DefaultBaseURL is the production Heleket API base URL.
 const DefaultBaseURL = "https://api.heleket.com"

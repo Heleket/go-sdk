@@ -145,12 +145,14 @@ client.RefundBlockedWallet(ctx, wallet.UUID, "TXyz...recovery-address...")
 
 ## Refund
 
-`Refund(ctx, RefundRequest) (*RefundResult, error)`  →  `POST /v1/payment/refund`
-
-Required: `Address`, `IsSubtract`; one of `UUID` / `OrderID`.
+**Moved to the payout client.** `POST /v1/payment/refund` is now signed with the
+**payout** API key, so refunds live on `PayoutClient.Refund` — see
+[05 — Payouts API → Refund](05-payouts.md#refund). The old `PaymentClient.Refund`
+is a deprecated stub that returns `ErrRefundMoved` without issuing a request.
 
 ```go
-client.Refund(ctx, heleket.RefundRequest{
+payout, _ := heleket.NewPayoutClient(merchantID, payoutKey)
+payout.Refund(ctx, heleket.RefundRequest{
     UUID:       invoiceUUID,
     Address:    "TBaCkAdDrEsS",
     IsSubtract: true,

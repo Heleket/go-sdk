@@ -32,6 +32,12 @@ var (
 	// ErrInvalidTestWebhookType is returned when TestWebhookRequest.Type is
 	// neither "payment" nor "wallet".
 	ErrInvalidTestWebhookType = errors.New(`heleket: TestWebhookRequest.Type must be "payment" or "wallet"`)
+
+	// ErrRefundMoved is returned by the deprecated PaymentClient.Refund. The
+	// /v1/payment/refund endpoint is now signed with the payout API key, which a
+	// PaymentClient does not hold, so refunds moved to PayoutClient.Refund. See
+	// UPGRADING.md.
+	ErrRefundMoved = errors.New("heleket: refunds moved to PayoutClient.Refund — /v1/payment/refund is now signed with the payout API key; call NewPayoutClient(merchantID, payoutKey).Refund(ctx, req)")
 )
 
 // APIError is returned when Heleket responds with state != 0 (a business
