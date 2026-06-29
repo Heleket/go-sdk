@@ -13,7 +13,7 @@ import (
 )
 
 // Version is the SDK version, surfaced in the User-Agent header.
-const Version = "0.2.0"
+const Version = "0.3.0"
 
 // DefaultBaseURL is the production Heleket API base URL.
 const DefaultBaseURL = "https://api.heleket.com"
@@ -30,7 +30,7 @@ const DefaultMaxRetries = 3
 const DefaultMaxResponseBytes = 16 << 20 // 16 MiB
 
 // defaultUserAgent is sent on every request unless WithUserAgent overrides it.
-const defaultUserAgent = "heleket-go/" + Version
+const defaultUserAgent = "heleket-go-sdk/" + Version
 
 // Config holds the per-client configuration. Construct it via NewPaymentClient
 // / NewPayoutClient with the Option-style helpers; do NOT mutate Config fields
@@ -98,7 +98,7 @@ func WithHTTPClient(client *http.Client) Option {
 }
 
 // WithUserAgent appends additional tokens to the User-Agent header. The SDK
-// always sends "heleket-go/<Version>" plus any extra tokens, in the order
+// always sends "heleket-go-sdk/<Version>" plus any extra tokens, in the order
 // added. Typical use: WithUserAgent("myapp/1.2 (+https://example.com)").
 func WithUserAgent(tokens string) Option {
 	return func(c *Config) {

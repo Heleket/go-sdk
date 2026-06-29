@@ -7,6 +7,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 While the SDK is in `0.x` the public API may still change between minor
 versions; it will be frozen at `1.0.0`.
 
+## [0.3.0] - 2026-06-29
+
+### Changed
+- The default `User-Agent` is now `heleket-go-sdk/<version>` (was
+  `heleket-go/<version>`), matching the naming convention used by the other
+  Heleket SDKs. Custom tokens added via `WithUserAgent` are unaffected.
+
 ## [0.2.0] - 2026-06-25
 
 ### Added
@@ -56,6 +63,7 @@ cryptocurrency payment API, with zero dependencies beyond the standard library.
 - Debug logging via `log/slog` that never emits API keys or the `sign` header.
 - `heleket-webhook-inspect` CLI, eleven runnable examples, and a Docker harness.
 
+[0.3.0]: https://github.com/heleket/go-sdk/releases/tag/v0.3.0
 [0.2.0]: https://github.com/heleket/go-sdk/releases/tag/v0.2.0
 [0.1.1]: https://github.com/heleket/go-sdk/releases/tag/v0.1.1
 [0.1.0]: https://github.com/heleket/go-sdk/releases/tag/v0.1.0

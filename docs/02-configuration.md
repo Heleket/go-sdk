@@ -57,7 +57,7 @@ Available options:
 - `heleket.WithLogger(*slog.Logger)` — pass your own logger (the SDK uses Debug-level messages)
 - `heleket.WithHTTPClient(*http.Client)` — drop in a custom `*http.Client` (TLS, proxy, instrumentation)
 - `heleket.WithTransport(heleket.Transport)` — swap out the entire HTTP layer (e.g. with a `FakeTransport` in tests)
-- `heleket.WithUserAgent(string)` — append tokens to the User-Agent header (the SDK always sends `heleket-go/<Version>` plus your additions)
+- `heleket.WithUserAgent(string)` — append tokens to the User-Agent header (the SDK always sends `heleket-go-sdk/<Version>` plus your additions)
 - `heleket.WithMaxRetries(int)` — number of retries on transport errors and HTTP 5xx (default 3, set to 0 to disable)
 - `heleket.WithMaxResponseBytes(int64)` — cap on response body size (default 16 MiB)
 

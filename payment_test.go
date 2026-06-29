@@ -214,7 +214,7 @@ func TestUserAgent_DefaultAndCustom(t *testing.T) {
 		t.Fatalf("CreateInvoice: %v", err)
 	}
 	got := fake.LastRequest().Headers.Get("User-Agent")
-	if !strings.Contains(got, "heleket-go/") {
+	if !strings.Contains(got, "heleket-go-sdk/") {
 		t.Errorf("User-Agent missing SDK prefix: %q", got)
 	}
 	if !strings.Contains(got, "myapp/1.2") {

@@ -96,7 +96,7 @@ make help                 # Full target list
 - **Response body cap.** The SDK refuses to read more than 16 MiB per response by default to protect against memory-exhaustion from a misbehaving server. Tune via `heleket.WithMaxResponseBytes`.
 - **No cross-host redirects.** The default `*http.Client` blocks all redirects so the signed `sign` header never reaches an unexpected host.
 - **HTTPS-only base URL.** `WithBaseURL` accepts `https://` for production and `http://localhost` / `127.0.0.1` for local testing — nothing else.
-- **User-Agent.** Every request carries `heleket-go/<version>`; append your own identifier via `heleket.WithUserAgent("myapp/1.0")`.
+- **User-Agent.** Every request carries `heleket-go-sdk/<version>`; append your own identifier via `heleket.WithUserAgent("myapp/1.0")`.
 
 ## Security notes (read this)
 
